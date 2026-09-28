@@ -1,0 +1,21 @@
+#!/bin/bash
+# Not a compiled binary: this script is the app. It runs the Python code in the
+# repo this bundle sits in, so edits there apply the next time Runner is opened.
+REPO="$(cd "$(dirname "$0")/../../.." && pwd)"
+cd "$REPO" || exit 1
+mkdir -p state
+exec >>state/runner.log 2>&1
+echo "--- $(date) launching from $REPO"
+
+if [ ! -x .venv/bin/python ]; then
+  osascript -e 'display notification "First launch: installing dependencies…" with title "Runner"'
+  PY=""
+  for c in "$HOME/.pyenv/shims/python3" /opt/homebrew/bin/python3 /usr/local/bin/python3 /usr/bin/python3; do
+    if [ -x "$c" ] && "$c" -c 'import sys; sys.exit(sys.version_info < (3, 9))' 2>/dev/null; then PY="$c"; break; fi
+  done
+  "$PY" -m venv .venv && .venv/bin/pip install -q -r requirements.txt || {
+    osascript -e 'display alert "Runner could not set up its Python environment" message "See state/runner.log in the runner folder."'
+    exit 1
+  }
+fi
+exec .venv/bin/python -m runner "$@"
