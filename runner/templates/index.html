@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Runner</title>
+<link rel="icon" href="{{ url_for('static', filename='icon.svg') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header>
+  <img class="brand" src="{{ url_for('static', filename='icon.svg') }}" alt=""><h1>Runner</h1>
+  <input id="search" type="search" placeholder="Search projects…" autocomplete="off" spellcheck="false">
+  <label class="toggle"><input type="checkbox" id="only-running"> Running only</label>
+  <span class="spacer"></span>
+  <span id="summary" class="muted"></span>
+  <button id="stop-all" class="ghost">Stop all</button>
+  <button id="add" class="primary">＋ Add project</button>
+</header>
+<nav id="tags"></nav>
+<main id="sections"></main>
+<p id="empty" class="muted" hidden></p>
+
+<dialog id="edit">
+  <form method="dialog" id="edit-form">
+    <h2 id="edit-title">Add project</h2>
+    <div class="cols">
+      <label>Name <input name="name" required></label>
+      <label>Kind
+        <select name="kind">
+          <option value="server">Server (start/stop)</option>
+          <option value="terminal">Terminal only</option>
+        </select>
+      </label>
+    </div>
+    <label>Project folder <input name="path" required placeholder="~/code/my-project" spellcheck="false"></label>
+    <label>Description <input name="description"></label>
+    <div class="cols">
+      <label>Tags <input name="tags" placeholder="flask, game" spellcheck="false"></label>
+      <label>Group <input name="group" list="group-list" placeholder="none" spellcheck="false"></label>
+    </div>
+    <datalist id="group-list"></datalist>
+    <div class="cols server-only">
+      <label>Port <input name="port" type="number" min="1024" max="65535" placeholder="auto"></label>
+      <label>URL path <input name="url_path" placeholder="/" spellcheck="false"></label>
+    </div>
+    <label class="new-only server-only">Template
+      <select name="type"></select>
+    </label>
+    <label>Terminal commands <span class="muted">— one per line, <code>Label = command</code>; each becomes a button that opens Terminal in the folder and runs it</span>
+      <textarea name="commands" rows="2" spellcheck="false" placeholder="Claude = claude"></textarea></label>
+    <div class="edit-only">
+      <label>Logo <input name="logo" type="file" accept=".svg,.png,.jpg,.jpeg,.webp,.ico,.gif"></label>
+      <div class="server-only">
+        <label>start.sh <textarea name="start_sh" rows="9" spellcheck="false"></textarea></label>
+        <label>close.sh <span class="muted">(optional — the process group is killed afterwards regardless)</span>
+          <textarea name="close_sh" rows="4" spellcheck="false"></textarea></label>
+        <p class="muted small">Scripts run with the project folder as working directory and get
+          <code>$PORT</code>, <code>$PROJECT_DIR</code>, <code>$PROJECT_ID</code>, <code>$RUNNER_PROJECT_DATA</code>;
+          close.sh also gets <code>$RUNNER_PGID</code>. start.sh must stay in the foreground (use <code>exec</code>).</p>
+      </div>
+    </div>
+    <p id="edit-error" class="error"></p>
+    <footer>
+      <button type="button" id="delete" class="danger edit-only">Remove from Runner</button>
+      <button type="button" id="data-folder" class="ghost edit-only">Show data folder</button>
+      <span class="spacer"></span>
+      <button value="cancel" formnovalidate class="ghost">Cancel</button>
+      <button id="save" value="save" class="primary">Save</button>
+    </footer>
+  </form>
+</dialog>
+
+<dialog id="group-edit">
+  <form method="dialog" id="group-form">
+    <h2 id="group-title">Edit group</h2>
+    <label>Name <input name="name" required></label>
+    <label>Description <input name="description"></label>
+    <label>Logo <input name="logo" type="file" accept=".svg,.png,.jpg,.jpeg,.webp,.ico,.gif"></label>
+    <p class="muted small">Projects join a group from their own Edit dialog. Removing the group leaves its projects in place, ungrouped.</p>
+    <p id="group-error" class="error"></p>
+    <footer>
+      <button type="button" id="group-delete" class="danger">Remove group</button>
+      <span class="spacer"></span>
+      <button value="cancel" formnovalidate class="ghost">Cancel</button>
+      <button value="save" class="primary">Save</button>
+    </footer>
+  </form>
+</dialog>
+
+<dialog id="logs">
+  <div class="log-head">
+    <h2 id="logs-title">Log</h2>
+    <label class="toggle"><input type="checkbox" id="log-follow" checked> Follow</label>
+    <button id="logs-close" class="ghost">Close</button>
+  </div>
+  <pre id="log-text"></pre>
+</dialog>
+
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

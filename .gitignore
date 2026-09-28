@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+state/
+.DS_Store
+
+# Your own projects and groups: personal, not part of the app. (data/templates/ is.)
+data/projects/
+data/groups/
+CLAUDE.local.md
