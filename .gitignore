@@ -7,3 +7,5 @@ state/
 data/projects/
 data/groups/
 CLAUDE.local.md
+
+.claude/
